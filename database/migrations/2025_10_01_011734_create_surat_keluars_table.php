@@ -10,17 +10,26 @@ return new class extends Migration
     {
         Schema::create('surat_keluar', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_surat');
+            $table->string('nomor_urut', 50);
+            $table->string('nomor_berkas', 50);
+            $table->text('alamat_penerima')->nullable();
             $table->date('tanggal_surat');
-            $table->string('tujuan');
-            $table->string('perihal');
-            $table->string('file_path');
+            $table->text('perihal');
+            $table->string('nomor_petunjuk', 50)->nullable();
+            $table->string('nomor_paket', 50)->nullable();
+            $table->string('file_path')->nullable();
+            
+            // Foreign key ke arsip_surat
+            $table->foreignId('arsip_surat_id')
+                  ->constrained('arsip_surat')
+                  ->onDelete('cascade');
+            
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('surat_keluars');
+        Schema::dropIfExists('surat_keluar');
     }
 };

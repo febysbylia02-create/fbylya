@@ -27,13 +27,15 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Akun User biasa (opsional)
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // // Akun User biasa (opsional)
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
 
-        $this->call(SuratKeluarSeeder::class);
+        // $this->call(SuratKeluarSeeder::class);
+        // $this->call(SuratMasukSeeder::class);
+        // $this->call(AdminUserSeeder::class);
 
     }
 }

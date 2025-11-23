@@ -20,6 +20,12 @@ class ArsipSuratController extends Controller
             });
         }
     
+        $archives = $query->latest()->get();
+    
+        if ($request->wantsJson()) {
+            return response()->json($archives);
+        }
+    
         $archives = $query->latest()->paginate(10); // atau sesuaikan jumlah per halaman
     
         return view('arsip-surat.index', compact('archives'));
@@ -27,11 +33,10 @@ class ArsipSuratController extends Controller
 
     public function create()
     {
-        $letters = SuratKeluar::whereDoesntHave('arsipSurat')->get();
         $suratKeluarCount = SuratKeluar::count();
         $arsipSuratCount = ArsipSurat::count(); // 🔥 Sesuai layout
 
-        return view('arsip-surat.create', compact('letters', 'suratKeluarCount', 'arsipSuratCount'));
+        return view('arsip-surat.create', compact('suratKeluarCount', 'arsipSuratCount'));
     }
 
     public function store(Request $request)
@@ -67,22 +72,20 @@ class ArsipSuratController extends Controller
 
     public function edit(ArsipSurat $arsipSurat)
     {
-        $letters = SuratKeluar::all();
         $suratKeluarCount = SuratKeluar::count();
         $arsipSuratCount = ArsipSurat::count(); // 🔥 Sesuai layout
 
-        return view('arsip-surat.edit', compact('arsipSurat', 'letters', 'suratKeluarCount', 'arsipSuratCount'));
+        return view('arsip-surat.edit', compact('arsipSurat', 'suratKeluarCount', 'arsipSuratCount'));
     }
 
     public function update(Request $request, ArsipSurat $arsipSurat)
     {
         $request->validate([
-            'surat_keluar_id' => 'required|exists:App\Models\SuratKeluar,id', // ✅ Konsisten
-            'kategori' => 'required|string|max:100',
+            'tanggal_arsip' => 'required|date',
             'catatan' => 'nullable|string',
         ]);
 
-        $arsipSurat->update($request->only(['surat_keluar_id', 'kategori', 'catatan']));
+        $arsipSurat->update($request->only(['tanggal_arsip', 'catatan']));
 
         return redirect()->route('arsip-surat.index')
                          ->with('success', 'Arsip berhasil diperbarui!');
@@ -98,17 +101,17 @@ class ArsipSuratController extends Controller
 
     public function download(ArsipSurat $arsipSurat)
     {
-        if (!$arsipSurat->suratKeluar || !$arsipSurat->suratKeluar->file_path) {
+        if (!$arsipSurat->file_path) {
             abort(404, 'File surat tidak ditemukan.');
         }
 
-        $filePath = storage_path('app/public/' . $arsipSurat->suratKeluar->file_path);
+        $filePath = storage_path('app/public/' . $arsipSurat->file_path);
 
         if (!file_exists($filePath)) {
             abort(404, 'File tidak ditemukan di server.');
         }
 
-        $fileName = 'Surat_' . $arsipSurat->suratKeluar->nomor_surat . '.pdf';
+        $fileName = basename($arsipSurat->file_path);
 
         return response()->download($filePath, $fileName);
     }

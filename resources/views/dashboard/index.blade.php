@@ -33,13 +33,20 @@
                 Dashboard
             </a>
 
+             <a href="/surat-keluar" class="menu-item {{ request()->is('surat-keluar*') ? 'active' : '' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+            <span>Surat Keluar</span>
+        </a>
 
-            <a href="/format-nomor-surat" class="menu-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 2h6v6H9V2zm-1 14h8v2H8v-2zm8-4h-8v2h8v-2zm0-4h-8v2h8v-2z"/>
-                </svg>
-                Format Nomor Surat
-            </a>
+        <a href="/arsip-surat" class="menu-item {{ request()->is('arsip-surat*') ? 'active' : '' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 10H6v-2h8v2zm0-4H6v-2h8v2z"/>
+            </svg>
+            <span>Arsip Surat</span>
+        </a>
+            
 
             <a href="{{ route('logout') }}" 
             onclick="event.preventDefault(); document.getElementById('logout-form').submit();"

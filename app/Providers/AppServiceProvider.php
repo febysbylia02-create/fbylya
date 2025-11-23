@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+       // Share variabel ke semua view
+        View::composer('*', function ($view) {
+            $view->with('letters', $view->getData()['letters'] ?? collect());
+        });
     }
 
     /**
@@ -19,6 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Paginator::useBootstrapFive();
     }
 }

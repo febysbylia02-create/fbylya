@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,19 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class ArsipSurat extends Model
 {
     use HasFactory;
-
-    protected $table = 'arsip_surat'; // ← jika Anda ganti nama tabel
-
-// app/Models/ArsipSurat.php
-protected $fillable = [
-    'tanggal_arsip',
-    'file_path',
-    'catatan',
-    'surat_keluar_id',
-];
-
+    
+    protected $table = 'arsip_surat';
+    
+    protected $fillable = [
+        'tanggal_arsip',
+        'file_path',
+        'catatan',
+    ];
+    
+    /**
+     * Satu arsip surat bisa digunakan oleh banyak surat keluar
+     * Relasi: One to Many
+     */
     public function suratKeluar()
     {
-        return $this->belongsTo(SuratKeluar::class);
+        // UBAH dari hasOne menjadi hasMany
+        return $this->hasMany(SuratKeluar::class, 'arsip_surat_id');
     }
 }
