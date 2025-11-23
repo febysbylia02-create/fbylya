@@ -15,6 +15,16 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @can('create surat-keluar')
+                    <x-nav-link :href="route('surat-keluar.index')" :active="request()->routeIs('surat-keluar.index')">
+                        {{ __('Surat Keluar') }}
+                    </x-nav-link>
+                    @endcan
+                    @can('create arsip-surat')
+                    <x-nav-link :href="route('arsip-surat.index')" :active="request()->routeIs('arsip-surat.index')">
+                        {{ __('Arsip Surat') }}
+                    </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -69,6 +79,16 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @can('create surat-keluar')
+            <x-responsive-nav-link :href="route('surat-keluar.index')" :active="request()->routeIs('surat-keluar.index')">
+                {{ __('Surat Keluar') }}
+            </x-responsive-nav-link>
+            @endcan
+            @can('create arsip-surat')
+            <x-responsive-nav-link :href="route('arsip-surat.index')" :active="request()->routeIs('arsip-surat.index')">
+                {{ __('Arsip Surat') }}
+            </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->

@@ -33,6 +33,8 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
+        $this->call(RoleAndPermissionSeeder::class);
+        $this->call(KaryawanUserSeeder::class);
         // $this->call(SuratKeluarSeeder::class);
         // $this->call(SuratMasukSeeder::class);
         // $this->call(AdminUserSeeder::class);

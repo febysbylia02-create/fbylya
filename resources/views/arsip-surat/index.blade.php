@@ -145,6 +145,7 @@
                                         </a>
                                     @endif
 
+                                    @can('delete arsip-surat')
                                     <form action="{{ route('arsip-surat.destroy', $arsip) }}" method="POST" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
@@ -152,6 +153,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </td>
                             </tr>
                             @endforeach

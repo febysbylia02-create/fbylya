@@ -82,9 +82,9 @@
             <div class="welcome-banner">
                 <div class="welcome-text">
                     <div class="welcome-title">Selamat Datang {{ Auth::user()->name }}!</div>
-                    <div class="welcome-subtitle">Anda Masuk Sebagai Admin</div>
+                    <div class="welcome-subtitle">Anda Masuk Sebagai {{ Auth::user()->getRoleNames()->first() }}</div>
                 </div>
-                <div class="welcome-icon">👁️</div>
+                <div class="welcome-icon"></div>
             </div>
             <div class="card-grid">
                 <a href="{{ route('surat-keluar.index') }}" style="text-decoration: none; color: inherit;">

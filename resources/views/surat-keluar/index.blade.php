@@ -92,6 +92,7 @@
                                     <a href="{{ route('surat-keluar.edit', $letter) }}" class="btn btn-sm btn-outline-primary" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @can('delete surat-keluar')
                                     <form action="{{ route('surat-keluar.destroy', $letter) }}" method="POST" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
@@ -99,6 +100,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </td>
                             </tr>
                             @endforeach
