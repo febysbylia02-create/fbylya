@@ -11,23 +11,23 @@ class ArsipSuratController extends Controller
     public function index(Request $request)
     {
         $query = ArsipSurat::query();
-    
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('file_path', 'LIKE', "%{$search}%")
-                  ->orWhere('catatan', 'LIKE', "%{$search}%");
+                    ->orWhere('catatan', 'LIKE', "%{$search}%");
             });
         }
-    
+
         $archives = $query->latest()->get();
-    
+
         if ($request->wantsJson()) {
             return response()->json($archives);
         }
-    
+
         $archives = $query->latest()->paginate(10); // atau sesuaikan jumlah per halaman
-    
+
         return view('arsip-surat.index', compact('archives'));
     }
 
@@ -46,21 +46,21 @@ class ArsipSuratController extends Controller
             'file' => 'required|file|mimes:pdf,doc,docx,txt|max:10240',
             'catatan' => 'nullable|string',
         ]);
-    
+
         // Ambil nama file asli
         $originalName = $request->file('file')->getClientOriginalName();
-    
+
         // Simpan file dengan nama asli
         $filePath = $request->file('file')->storeAs('arsip-surat', $originalName, 'public');
-    
+
         ArsipSurat::create([
             'tanggal_arsip' => $request->tanggal_arsip,
             'file_path' => $filePath,
             'catatan' => $request->catatan,
         ]);
-    
+
         return redirect()->route('arsip-surat.index')
-                         ->with('success', 'File berhasil diarsipkan!');
+            ->with('success', 'File berhasil diarsipkan!');
     }
 
     public function show(ArsipSurat $arsipSurat)
@@ -70,13 +70,13 @@ class ArsipSuratController extends Controller
         return view('arsip-surat.show', compact('arsipSurat', 'suratKeluarCount', 'arsipSuratCount'));
     }
 
-    public function edit(ArsipSurat $arsipSurat)
-    {
-        $suratKeluarCount = SuratKeluar::count();
-        $arsipSuratCount = ArsipSurat::count(); // 🔥 Sesuai layout
+    // public function edit(ArsipSurat $arsipSurat)
+    // {
+    //     $suratKeluarCount = SuratKeluar::count();
+    //     $arsipSuratCount = ArsipSurat::count(); // 🔥 Sesuai layout
 
-        return view('arsip-surat.edit', compact('arsipSurat', 'suratKeluarCount', 'arsipSuratCount'));
-    }
+    //     return view('arsip-surat.edit', compact('arsipSurat', 'suratKeluarCount', 'arsipSuratCount'));
+    // }
 
     public function update(Request $request, ArsipSurat $arsipSurat)
     {
@@ -88,7 +88,7 @@ class ArsipSuratController extends Controller
         $arsipSurat->update($request->only(['tanggal_arsip', 'catatan']));
 
         return redirect()->route('arsip-surat.index')
-                         ->with('success', 'Arsip berhasil diperbarui!');
+            ->with('success', 'Arsip berhasil diperbarui!');
     }
 
     public function destroy(ArsipSurat $arsipSurat)
@@ -96,7 +96,7 @@ class ArsipSuratController extends Controller
         $arsipSurat->delete();
 
         return redirect()->route('arsip-surat.index')
-                         ->with('success', 'Arsip berhasil dihapus!');
+            ->with('success', 'Arsip berhasil dihapus!');
     }
 
     public function download(ArsipSurat $arsipSurat)

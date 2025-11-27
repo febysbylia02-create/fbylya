@@ -2,29 +2,7 @@
 
 @section('title', 'Daftar Arsip Surat')
 
-@push('styles')
-<style>
-    /* Modal preview styling */
-    #previewFrame {
-        border: none;
-        width: 100%;
-        height: 60vh;
-    }
 
-    #loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 60vh;
-    }
-
-    .spinner-border {
-        width: 3rem;
-        height: 3rem;
-    }
-</style>
-@endpush
 
 @section('content')
 <div class="container-fluid">
@@ -85,6 +63,7 @@
                                 <th>Tanggal Arsip</th>
                                 <th>Nama File</th>
                                 <th>Catatan</th>
+                                 <th>File</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -131,25 +110,23 @@
                                 <td>{{ $arsip->catatan ?? '—' }}</td>
                                 <td>
                                     @if($arsip->file_path)
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-primary"
-                                                title="Lihat"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#fileModal"
-                                                data-file-url="{{ asset('storage/' . $arsip->file_path) }}"
-                                                data-file-name="{{ basename($arsip->file_path) }}">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <a href="{{ asset('storage/' . $arsip->file_path) }}" download class="btn btn-sm btn-outline-success" title="Download">
-                                            <i class="fas fa-download"></i>
+                                        <a href="{{ asset('storage/' . $arsip->file_path) }}" target="_blank"
+                                            class="btn btn-sm btn-outline-secondary" title="Lihat File">
+                                            <i class="fas fa-file-alt"></i>
                                         </a>
+                                    @else
+                                        <span class="text-muted">—</span>
                                     @endif
-
+                                </td>
+                                <td>
+                                    <a href="{{ route('arsip-surat.show', $arsip) }}" class="btn btn-sm btn-outline-info" title="Preview">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     @can('delete arsip-surat')
                                     <form action="{{ route('arsip-surat.destroy', $arsip) }}" method="POST" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus arsip ini?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus arsip ini?')" title="Hapus">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -170,94 +147,4 @@
     @endif
 </div>
 
-<!-- Modal Preview Dokumen -->
-<div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fileModalLabel">Preview Dokumen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="loading">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Memuat dokumen...</p>
-                </div>
-
-                <!-- Bungkus iframe dengan div container yang bisa digulir -->
-                <div id="previewContainer" style="height: 80vh; overflow-y: auto; border: none; background: #fff;">
-                    <iframe id="previewFrame" style="width: 100%; height: 100%; border: none;"></iframe>
-                </div>
-
-                <div id="error" style="display: none;" class="text-center p-4">
-                    <div class="alert alert-danger">
-                        <!-- Pesan error akan diisi oleh JS -->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@push('scripts')
-<script>
-// Gunakan IIFE (Immediately Invoked Function Expression) untuk memastikan tidak ada konflik variabel global
-(function() {
-    document.addEventListener('DOMContentLoaded', function () {
-        const modal = document.getElementById('fileModal');
-        if (!modal) return;
-
-        const frame = document.getElementById('previewFrame');
-        const loading = document.getElementById('loading');
-        const error = document.getElementById('error');
-        const errorAlert = document.querySelector('#error .alert');
-
-        modal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const fileUrl = button.getAttribute('data-file-url');
-            const fileName = button.getAttribute('data-file-name');
-            const fileExtension = fileName.split('.').pop().toLowerCase();
-
-            // Reset tampilan
-            frame.style.display = 'none';
-            loading.style.display = 'flex';
-            error.style.display = 'none';
-            frame.src = '';
-            errorAlert.textContent = '';
-
-            // Daftar tipe file yang bisa ditampilkan langsung di browser
-            const inlineTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'txt'];
-
-            const isInline = inlineTypes.includes(fileExtension);
-
-            if (isInline) {
-                frame.src = fileUrl;
-                frame.onload = function () {
-                    loading.style.display = 'none';
-                    frame.style.display = 'block';
-                };
-                frame.onerror = function () {
-                    loading.style.display = 'none';
-                    error.style.display = 'block';
-                    errorAlert.textContent = 'Gagal memuat pratinjau file ini.';
-                };
-            } else {
-                loading.style.display = 'none';
-                error.style.display = 'block';
-                errorAlert.textContent = `Pratinjau tidak tersedia untuk file "${fileName}" (${fileExtension.toUpperCase()}). Silakan gunakan tombol download.`;
-            }
-        });
-
-        modal.addEventListener('hidden.bs.modal', function () {
-            frame.src = '';
-        });
-    });
-})();
-</script>
-@endpush
 @endsection

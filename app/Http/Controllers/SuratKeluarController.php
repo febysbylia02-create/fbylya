@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\SuratKeluar;
-use App\Models\ArsipSurat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,10 +17,10 @@ class SuratKeluarController extends Controller
         $query = SuratKeluar::query();
 
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nomor_berkas', 'LIKE', "%{$search}%")
-                  ->orWhere('alamat_penerima', 'LIKE', "%{$search}%")
-                  ->orWhere('perihal', 'LIKE', "%{$search}%");
+                    ->orWhere('alamat_penerima', 'LIKE', "%{$search}%")
+                    ->orWhere('perihal', 'LIKE', "%{$search}%");
             });
         }
 
@@ -29,9 +28,8 @@ class SuratKeluarController extends Controller
         $letters->appends(['search' => $search]);
 
         $suratKeluarCount = SuratKeluar::count();
-        $arsipSuratCount = ArsipSurat::count();
 
-        return view('surat-keluar.index', compact('letters', 'suratKeluarCount', 'arsipSuratCount'));
+        return view('surat-keluar.index', compact('letters', 'suratKeluarCount'));
     }
 
     /**
@@ -40,10 +38,8 @@ class SuratKeluarController extends Controller
     public function create()
     {
         $suratKeluarCount = SuratKeluar::count();
-        $arsipSuratCount = ArsipSurat::count();
-        $arsipSurats = ArsipSurat::all();
 
-        return view('surat-keluar.create', compact('suratKeluarCount', 'arsipSuratCount', 'arsipSurats'));
+        return view('surat-keluar.create', compact('suratKeluarCount'));
     }
 
     /**
@@ -59,13 +55,22 @@ class SuratKeluarController extends Controller
             'perihal' => 'required|string',
             'nomor_petunjuk' => 'nullable|string|max:50',
             'nomor_paket' => 'nullable|string|max:50',
-            'arsip_surat_id' => 'required|exists:arsip_surat,id',
+            'file_path' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240', // Max 10MB
         ]);
 
-        SuratKeluar::create($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('file_path')) {
+            $file = $request->file('file_path');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('surat-keluar', $filename, 'public');
+            $data['file_path'] = $path;
+        }
+
+        SuratKeluar::create($data);
 
         return redirect()->route('surat-keluar.index')
-                         ->with('success', 'Surat keluar berhasil ditambahkan!');
+            ->with('success', 'Surat keluar berhasil ditambahkan!');
     }
 
     /**
@@ -73,13 +78,9 @@ class SuratKeluarController extends Controller
      */
     public function show(SuratKeluar $suratKeluar)
     {
-        // Eager load the relationship to avoid N+1 issues
-        $suratKeluar->load('arsipSurat');
-        
         $suratKeluarCount = SuratKeluar::count();
-        $arsipSuratCount = ArsipSurat::count();
 
-        return view('surat-keluar.show', compact('suratKeluar', 'suratKeluarCount', 'arsipSuratCount'));
+        return view('surat-keluar.show', compact('suratKeluar', 'suratKeluarCount'));
     }
 
     /**
@@ -88,10 +89,8 @@ class SuratKeluarController extends Controller
     public function edit(SuratKeluar $suratKeluar)
     {
         $suratKeluarCount = SuratKeluar::count();
-        $arsipSuratCount = ArsipSurat::count();
-        $arsipSurats = ArsipSurat::all();
 
-        return view('surat-keluar.edit', compact('suratKeluar', 'suratKeluarCount', 'arsipSuratCount', 'arsipSurats'));
+        return view('surat-keluar.edit', compact('suratKeluar', 'suratKeluarCount'));
     }
 
     /**
@@ -107,13 +106,25 @@ class SuratKeluarController extends Controller
             'perihal' => 'required|string',
             'nomor_petunjuk' => 'nullable|string|max:50',
             'nomor_paket' => 'nullable|string|max:50',
-            'arsip_surat_id' => 'required|exists:arsip_surat,id',
+            'file_path' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
         ]);
+
+        if ($request->hasFile('file_path')) {
+            // Hapus file lama jika ada
+            if ($suratKeluar->file_path) {
+                Storage::disk('public')->delete($suratKeluar->file_path);
+            }
+
+            $file = $request->file('file_path');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('surat-keluar', $filename, 'public');
+            $validated['file_path'] = $path;
+        }
 
         $suratKeluar->update($validated);
 
         return redirect()->route('surat-keluar.index')
-                         ->with('success', 'Surat keluar berhasil diperbarui!');
+            ->with('success', 'Surat keluar berhasil diperbarui!');
     }
 
     /**
@@ -125,10 +136,10 @@ class SuratKeluarController extends Controller
         if ($suratKeluar->file_path) {
             Storage::disk('public')->delete($suratKeluar->file_path);
         }
-        
+
         $suratKeluar->delete();
 
         return redirect()->route('surat-keluar.index')
-                         ->with('success', 'Surat keluar berhasil dihapus.');
+            ->with('success', 'Surat keluar berhasil dihapus.');
     }
 }
